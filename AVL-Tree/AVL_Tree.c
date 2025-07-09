@@ -61,7 +61,7 @@ Node* rotationLeft(Node* node){
     f = y->left;
 
     y->left = node;
-    node->left = f;
+    node->right = f;
 
     node->height = bigger(nodeHeight(node->left), nodeHeight(node->right)) + 1;
     y->height = bigger(nodeHeight(y->left), nodeHeight(y->right)) + 1;
