@@ -1,24 +1,47 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
-typedef struct node{
-    int value;
-    struct node *left, *right;
+typedef struct Book {
+    char title[256];
+    char author[128];
+    char isbn[20]; // Usar como chave para a árvore (deve ser único)
+    int year;
+    int stock;
+} Book;
+
+void displayBook(Book book);
+
+typedef struct Node{
+    Book book;
+    struct Node *left, *right;
     int height;
 }Node;
 
-Node* newNode(int x);
+Node* newNode(Book book);
 int bigger(int a,int b);
 int GetHeight(Node* node);
+int balancingFactor(Node* node); 
 Node* rotationLeft(Node* node);
 Node* rotationRight(Node* node);
 Node* rotationRightLeft(Node* node);
 Node* rotationLeftRight(Node* node);
 Node* balance(Node* root);
-Node* insertNode(Node* root, int x);
-Node* removeNode(Node* root, int key);
-Node* searchNode(Node* root, int key);
-void printTreeAVL(Node* root, int level);
+Node* insertNode(Node* root, Book book);
+Node* removeNode(Node* root, const char* isbn);
+Node* searchNode(Node* root, const char* isbn);
+void printTreeAVL(Node* root, int level); 
+
+typedef struct {
+    Book *books; // Um array dinâmico de Books encontrados
+    int count;      // Quantidade de Books encontrados
+    int capacity;   // Capacidade atual do array
+} SearchResults;
+
+void startSearchResults(SearchResults *list);
+void addBookToResultsList(SearchResults *list, Book book); 
+void freeSearchResults(SearchResults *list); 
+void searchBooksByTitleSubstring(Node *node, const char *searchTerm, SearchResults *results); 
 
 typedef struct Tree {
     int numberNodes;// Numero de nos da arvove
@@ -27,22 +50,21 @@ typedef struct Tree {
 } Tree;
 
 Tree* createAVLTree();
-void insertAVL(Tree* tree, int x);
-void removeAVL(Tree* tree, int key);
+void insertAVL(Tree* tree, Book book);
+void removeAVL(Tree* tree, const char* isbn);
+void searchAVL(Tree* tree, const char* isbn);
 void printAVL(Tree* tree);
-void searchAVL(Tree* tree, int key);
-
 void updateTreeMetrics(Tree* tree);
 
 /**
  * @brief Cria um Node.
  * @param x O data a ser inserido.
  */
-Node* newNode(int x){
+Node* newNode(Book book){
     Node* new = malloc(sizeof(Node));
 
     if(new){
-        new->value = x;
+        new->book = book;
         new->left = NULL;
         new->right = NULL;
         new->height = 0;
@@ -167,49 +189,56 @@ Node* balance(Node* root){
 
 /**
  * @brief Insere o node
- * @param node O ponteiro para o Node
- * @param x O data do Node
+ * @param root O ponteiro para o Node root
+ * @param Book O struct Livro a ser inserido.
  */
-Node* insertNode(Node* root, int x){
+Node* insertNode(Node* root, Book book){
     if(root == NULL)
-        return newNode(x);
-    
-    else{
-        if(x < root->value)
-            root->left = insertNode(root->left, x);
-        else if(x > root->value)
-            root->right = insertNode(root->right, x);
-        else
-            printf("\nInserção não realizada, elemento ja existe!\n");
+        return newNode(book);
+
+    // Usamos strcmp para comparar ISBNs
+    int cmp = strcmp(book.isbn, root->book.isbn);
+
+    if(cmp < 0) // Book.isbn é "menor" que root->Book.isbn
+        root->left = insertNode(root->left, book);
+    else if(cmp > 0) // Book.isbn é "maior" que root->Book.isbn
+        root->right = insertNode(root->right, book);
+    else {
+        printf("\nInsertion not performed, Book with ISBN '%s' already exists!\n", book.isbn);
+        // Podemos atualizar o estoque aqui ou apenas impedir a inserção
+        // root->Book.quantidadeDisponivel += Book.quantidadeDisponivel; // Exemplo de atualização de estoque
     }
+
 
     //Ele recalcula a altura do nó raiz
     root->height = bigger(GetHeight(root->left), GetHeight(root->right)) + 1;
 
     //Ele verifica se precisa balancear ou não
     root = balance(root);
-    
+
     return root;
 }
 
 //Forma de remoção bem mais complexa, no caso ele busca em específico o valor e logo após faz o balanceamento
 /**
- * @brief Forma de remoção bem mais complexa, no caso ele busca em específico o valor e logo após faz o balanceamento
- * @param node O ponteiro para o Node
- * @param key O que iremos remover
+ * @brief Remove um nó da árvore AVL.
+ * @param root O ponteiro para a raiz da subárvore.
+ * @param isbn O ISBN (chave) do livro a ser removido.
  */
-Node* removeNode(Node* root, int key){
+Node* removeNode(Node* root, const char* isbn){
     if(root == NULL){
-        printf("Value not found!\n");
+        printf("Book with ISBN '%s' not found!\n", isbn);
         return NULL;
     }
     //Procurando o Nó para remover
     else{
-        if(root->value == key){
+        int cmp = strcmp(isbn, root->book.isbn);
+
+        if(cmp == 0){ // Book encontrado para remoção
             //Se o No não tiver filhos
             if(root->left == NULL && root->right == NULL){
+                printf("Book '%s' (ISBN: %s) removed!\n", root->book.title, root->book.isbn);
                 free(root);
-                printf("Elemente folha removido: %d !\n", key);
                 return NULL;
             }
             //Se o No tiver os dois filhos
@@ -218,60 +247,64 @@ Node* removeNode(Node* root, int key){
                     Node* aux = root->left;
                     while(aux->right != NULL)
                         aux = aux->right;
-                    root->value = aux->value;
-                    aux->value = key;
-                    printf("Elemento trocado: %d !\n", key);
-                    root->left = removeNode(root->left, key);
+                    // Copia os dados do sucessor (nó mais à direita da subárvore esquerda)
+                    root->book = aux->book;
+                    // Remove o nó que teve seus dados copiados
+                    root->left = removeNode(root->left, aux->book.isbn);
                     return root;
                 }
-                else{
+                else{ // Nó com um filho
                     Node* aux;
                     if(root->left != NULL)
                         aux = root->left;
                     else
                         aux = root->right;
+                    printf("Book '%s' (ISBN: %s) removed!\n", root->book.title, root->book.isbn);
                     free(root);
-                    printf("Elemento com 1 filho removido: %d !\n", key);
                     return aux;
                 }
             }
         }
-        else{
-            if(key < root->value)
-                root->left = removeNode(root->left, key);
+        else{ // Continua buscando o nó para remover
+            if(cmp < 0)
+                root->left = removeNode(root->left, isbn);
             else
-                root->right = removeNode(root->right, key);
+                root->right = removeNode(root->right, isbn);
         }
 
+        // Recalcula altura e balanceia após a remoção
         root->height = bigger(GetHeight(root->left), GetHeight(root->right)) + 1;
-
         root = balance(root);
-
         return root;
     }
 }
 
 /**
- * @brief Procura um valor específico na subárvore AVL.
+ * @brief Procura um livro específico na subárvore AVL pelo ISBN.
  * @param root O ponteiro para a raiz da subárvore.
- * @param key O valor a ser procurado.
- * @return Um ponteiro para o Node que contém o valor, ou NULL se o valor não for encontrado.
+ * @param isbn O ISBN a ser procurado.
+ * @return Um ponteiro para o Node que contém o livro, ou NULL se o livro não for encontrado.
  */
-Node* searchNode(Node* root, int key) {
-    if (root == NULL || root->value == key) {
-        return root; // Retorna o nó se encontrado ou NULL se a subárvore for vazia
+Node* searchNode(Node* root, const char* isbn){
+    if (root == NULL) {
+        return NULL;
     }
 
-    if (key < root->value) {
-        return searchNode(root->left, key); // Busca na subárvore esquerda
-    } else {
-        return searchNode(root->right, key); // Busca na subárvore direita
+    int cmp = strcmp(isbn, root->book.isbn);
+
+    if (cmp == 0) { // ISBN encontrado
+        return root;
+    } else if (cmp < 0) { // Busca na subárvore esquerda
+        return searchNode(root->left, isbn);
+    } else { // Busca na subárvore direita
+        return searchNode(root->right, isbn);
     }
 }
 
+
 /**
  * @brief Imprime a arvore Rotacionada 90 graus
- * @param node O ponteiro para o Node root
+ * @param root O ponteiro para o Node root
  * @param level Level inicial para printar
  */
 void printTreeAVL(Node* root, int level){
@@ -283,7 +316,7 @@ void printTreeAVL(Node* root, int level){
         for(i = 0; i < level; i++)
             printf("\t");
 
-        printf("%d", root->value);
+        printf("%s", root->book.isbn); // Imprime o ISBN e altura
         printTreeAVL(root->left, level + 1);
     }
 }
@@ -304,40 +337,44 @@ Tree* createAVLTree() {
 }
 
 /**
- * @brief Insere um valor na Arvore e cria um Node com esse valor.
+ * @brief Insere um livro na Arvore.
  * @param tree O ponteiro para a estrutura Tree.
- * @param x O valor a ser colocado.
+ * @param Book O struct Livro a ser inserido.
  */
-void insertAVL(Tree* tree, int x) {
+void insertAVL(Tree* tree, Book book) {
     if (tree == NULL) {
-        printf("Erro: Árvore não inicializada.\n");
+        printf("Error:Tree not started yet.\n");
         return;
     }
-    Node* oldRoot = tree->root;
-    tree->root = insertNode(tree->root, x);
-    
-    // Se a raiz mudou ou um novo nó foi realmente inserido (não duplicado)
-    // Uma forma mais robusta seria ter insertNode retornar um status (inserido/duplicado)
-    if (tree->root != oldRoot || (tree->root && tree->root->value != x && oldRoot == NULL)) {
-        tree->numberNodes++; // Incrementa o número de nós apenas se a inserção foi bem-sucedida e não é um duplicado
+    // Verifica se o ISBN já existe antes de tentar inserir para não contar duplicado
+    if (searchNode(tree->root, book.isbn) != NULL) {
+        printf("Book with ISBN '%s' already exists!\n", book.isbn);
+        return;
     }
-    tree->numberNodes++;
+
+    tree->root = insertNode(tree->root, book);
+    tree->numberNodes++; // Incrementa o número de nós apenas se a inserção foi bem-sucedida
     updateTreeMetrics(tree);
 }
 
 /**
- * @brief Remove um valor da árvore AVL.
+ * @brief Remove um livro da árvore AVL.
  * @param tree O ponteiro para a estrutura Tree.
- * @param key O valor a ser removido.
+ * @param isbn O ISBN do livro a ser removido.
  */
-void removeAVL(Tree* tree, int key) {
+void removeAVL(Tree* tree, const char* isbn) {
     if (tree == NULL) {
         printf("Erro: Árvore não inicializada.\n");
         return;
     }
-    Node* oldRoot = tree->root;
-    tree->root = removeNode(tree->root, key);
-    tree->numberNodes--;
+    // Verifica se o livro existe antes de tentar remover
+    if (searchNode(tree->root, isbn) == NULL) {
+        printf("Livro com ISBN '%s' não encontrado para remoção.\n", isbn);
+        return;
+    }
+
+    tree->root = removeNode(tree->root, isbn);
+    tree->numberNodes--; // Decrementa o número de nós
     updateTreeMetrics(tree); // Atualiza métricas após a remoção
 }
 
@@ -364,62 +401,194 @@ void updateTreeMetrics(Tree* tree) {
 }
 
 /**
- * @brief Procura um valor na árvore AVL e exibe uma mensagem.
+ * @brief Procura um livro na árvore AVL pelo ISBN e exibe uma mensagem.
  * @param tree O ponteiro para a estrutura Tree.
- * @param key O valor a ser procurado.
+ * @param isbn O ISBN a ser procurado.
  */
-void searchAVL(Tree* tree, int key) {
+void searchAVL(Tree* tree, const char* isbn) {
     if (tree == NULL) {
         printf("\tErro: Árvore não inicializada.\n");
         return;
     }
     if (tree->root == NULL) {
-        printf("\tEmpty Tree.The value %d can't be found.\n", key);
+        printf("\tÁrvore vazia. O livro com ISBN '%s' não pode ser encontrado.\n", isbn);
         return;
     }
 
-    Node* foundNode = searchNode(tree->root, key);
+    Node* foundNode = searchNode(tree->root, isbn);
     if (foundNode != NULL) {
-        printf("\tValue %d found in Tree!\n", key);
+        printf("\n\tLivro encontrado pelo ISBN '%s':\n", isbn);
+        displayBook(foundNode->book);
     } else {
-        printf("\tValue %d not found in Tree.\n", key);
+        printf("\tLivro com ISBN '%s' não encontrado na árvore.\n", isbn);
     }
 }
 
+void displayBook(Book Book) {
+    printf("Title: %s\n", Book.title);
+    printf("Author: %s\n", Book.author);
+    printf("ISBN: %s\n", Book.isbn);
+    printf("Year: %d\n", Book.year);
+    printf("Stock: %d\n", Book.stock);
+    printf("----------------------------------------\n");
+}
+
+void startSearchResults(SearchResults *lista) {
+    lista->count = 0;
+    lista->capacity = 5; // Comece com uma capacidade pequena
+    lista->books = (Book *)malloc(lista->capacity * sizeof(Book));
+    if (lista->books == NULL) {
+        printf("Error after try allocating memory!");
+    }
+}
+
+void addBookToResultsList(SearchResults *list, Book book) {
+    if (list->count == list->capacity) {
+        list->capacity *= 2; // Dobra a capacidade
+        Book *newList = (Book *)realloc(list->books, list->capacity * sizeof(Book));
+        if (newList == NULL) {
+            perror("Error reallocating memory for search results list");
+            exit(EXIT_FAILURE);
+        }
+        list->books = newList;
+    }
+    list->books[list->count++] = book; // Adiciona o livro (copia a struct)
+}
+
+// Função para liberar a memória alocada pela lista de resultados
+void freeSearchResults(SearchResults *lista) {
+    free(lista->books);
+    lista->books = NULL;
+    lista->count = 0;
+    lista->capacity = 0;
+}
+
+/**
+ * @brief Busca livros na árvore por uma sequência de caracteres no título
+ * e armazena os resultados em uma SearchResultsList.
+ * @param node O nó atual no percurso da árvore.
+ * @param searchTerm A sequência de caracteres a ser procurada no título.
+ * @param results Ponteiro para a estrutura SearchResultsList onde os livros encontrados serão armazenados.
+ */
+void searchBooksByTitleSubstring(Node *node, const char *searchTerm, SearchResults *results) {
+    if (node == NULL) {
+        return;
+    }
+
+    // Percorre a subárvore esquerda
+    searchBooksByTitleSubstring(node->left, searchTerm, results);
+
+    // Verifica o nó atual
+    // strstr() retorna um ponteiro para a primeira ocorrência da substring,
+    // ou NULL se a substring não for encontrada.
+    // Para busca case-insensitive, você pode converter ambos para minúsculas antes de usar strstr.
+    if (strstr(node->book.title, searchTerm) != NULL) {
+        addBookToResultsList(results, node->book);
+    }
+
+    // Percorre a subárvore direita
+    searchBooksByTitleSubstring(node->right, searchTerm, results);
+}
 int main(){
-    int option, value;
+    int option;
+    char input_isbn[20];
+    char input_title_search[256]; // Variável para a string de busca por título
+    Book newBook; // Variável para armazenar os dados do novo livro a ser inserido
+
     Tree* AVL_Tree = createAVLTree();
-    option = -1;
+    
     do{
-        printf("\n\n\t0 - Exit\n\t1 - Insert\n\t2 - Remove\n\t3 - Print Tree\n\t4 - Search Value\n\n");
+        printf("\n\n--- AVL BOOK LIBRARY MENU ---\n"); // Menu em inglês
+        printf("0 - Exit\n");
+        printf("1 - Insert Book\n");
+        printf("2 - Remove Book (by ISBN)\n");
+        printf("3 - Print Tree (debug - by ISBN)\n");
+        printf("4 - Search Book (by ISBN)\n");
+        printf("5 - Search Books (by Title - substring)\n"); // Nova opção para busca por título
+        printf("-------------------------------\n");
+        printf("Choose an option: ");
         scanf("%d", &option);
+        // Limpar o buffer de entrada após scanf para evitar problemas com fgets
+        while (getchar() != '\n'); // Consome o '\n' restante no buffer
 
         switch(option){
             case 0:
-                printf("Shutting Down!");
+                printf("Shutting Down the Library!\n"); 
+                // TODO: Implementar função para liberar toda a memória alocada para os nós da árvore
+                // Exemplo: void freeTreeNodes(Node* node); e chamar freeTreeNodes(AVL_Tree->root);
+                free(AVL_Tree); // Libera a estrutura da Tree principal
                 break;
             case 1:
-                printf("\tEnter the value to be inserted: ");
-                scanf("%d", &value);
-                insertAVL(AVL_Tree,value);
+                printf("\n--- Insert New Book ---\n"); 
+                printf("Title: ");
+                fgets(newBook.title, sizeof(newBook.title), stdin);
+                newBook.title[strcspn(newBook.title, "\n")] = 0; // Remove o '\n' do final da string
+
+                printf("Author: ");
+                fgets(newBook.author, sizeof(newBook.author), stdin);
+                newBook.author[strcspn(newBook.author, "\n")] = 0; // Remove o '\n'
+
+                printf("ISBN: ");
+                fgets(newBook.isbn, sizeof(newBook.isbn), stdin);
+                newBook.isbn[strcspn(newBook.isbn, "\n")] = 0; // Remove o '\n'
+
+                printf("Year of Publication: ");  
+                scanf("%d", &newBook.year); // Lê o ano
+                while (getchar() != '\n'); // Limpa o buffer
+
+                printf("Quantity in Stock: ");  
+                scanf("%d", &newBook.stock); // Lê o estoque
+                while (getchar() != '\n'); // Limpa o buffer
+
+                insertAVL(AVL_Tree, newBook); // Insere o novo livro na árvore
                 break;
             case 2:
-                printf("\tEnter the value to be removed:");
-                scanf("%d", &value);
-                removeAVL(AVL_Tree,value);
+                printf("\n--- Remove Book ---\n"); 
+                printf("Enter the ISBN of the book to be removed: ");
+                fgets(input_isbn, sizeof(input_isbn), stdin);
+                input_isbn[strcspn(input_isbn, "\n")] = 0; // Remove o '\n'
+                removeAVL(AVL_Tree, input_isbn); // Remove o livro pelo ISBN
                 break;
             case 3:
-                printAVL(AVL_Tree);
+                printf("\n--- AVL Tree (by ISBN) ---\n"); 
+                printAVL(AVL_Tree); // Imprime a árvore (mostra ISBNs e alturas)
+                printf("\nNumber of nodes: %d, Depth: %d\n", AVL_Tree->numberNodes, AVL_Tree->depth); 
                 break;
             case 4:
-                printf("\tEnter the value to be searched:");
-                scanf("%d", &value);
-                searchAVL(AVL_Tree,value);
+                printf("\n--- Search Book by ISBN ---\n"); 
+                printf("Enter the ISBN of the book to be searched: ");
+                fgets(input_isbn, sizeof(input_isbn), stdin);
+                input_isbn[strcspn(input_isbn, "\n")] = 0; // Remove o '\n'
+                searchAVL(AVL_Tree, input_isbn); // Busca o livro pelo ISBN e o exibe
+                break;
+            case 5: // Busca por Título (Substring)
+                printf("\n--- Search Books by Title (Substring) ---\n"); 
+                printf("Enter the title sequence to search: ");
+                fgets(input_title_search, sizeof(input_title_search), stdin);
+                input_title_search[strcspn(input_title_search, "\n")] = 0; // Remove o '\n'
+
+                SearchResults foundBooks; // Cria uma estrutura para armazenar os resultados
+                startSearchResults(&foundBooks); // Inicializa a lista de resultados
+
+                // Chama a função de busca que percorre a árvore para encontrar livros por título
+                searchBooksByTitleSubstring(AVL_Tree->root, input_title_search, &foundBooks);
+
+                if (foundBooks.count > 0) {
+                    printf("\n%d Book(s) found with '%s' in the title:\n", foundBooks.count, input_title_search); 
+                    for (int i = 0; i < foundBooks.count; i++) {
+                        printf("\n--- Book %d ---\n", i + 1); 
+                        displayBook(foundBooks.books[i]); // Exibe cada livro encontrado
+                    }
+                } else {
+                    printf("\nNo books found with '%s' in the title.\n", input_title_search); 
+                }
+
+                freeSearchResults(&foundBooks); // Libera a memória alocada para os resultados da busca
                 break;
             default:
-                printf("\tInvalid Option!\n");
+                printf("\tInvalid Option! Please try again.\n"); 
         }
-    }while(option != 0);
+    } while(option != 0);
 
     return 0;
 }
