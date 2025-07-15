@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <emscripten>
 
 typedef struct Book {
     char title[256];
