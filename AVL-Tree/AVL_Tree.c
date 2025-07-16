@@ -342,6 +342,7 @@ Tree* createAVLTree() {
  * @param tree O ponteiro para a estrutura Tree.
  * @param Book O struct Livro a ser inserido.
  */
+EMSCRIPTEN_KEEPALIVE
 void insertAVL(Tree* tree, Book book) {
     if (tree == NULL) {
         printf("Error:Tree not started yet.\n");
@@ -363,6 +364,7 @@ void insertAVL(Tree* tree, Book book) {
  * @param tree O ponteiro para a estrutura Tree.
  * @param isbn O ISBN do livro a ser removido.
  */
+EMSCRIPTEN_KEEPALIVE
 void removeAVL(Tree* tree, const char* isbn) {
     if (tree == NULL) {
         printf("Erro: Árvore não inicializada.\n");
@@ -471,6 +473,7 @@ void freeSearchResults(SearchResults *lista) {
  * @param searchTerm A sequência de caracteres a ser procurada no título.
  * @param results Ponteiro para a estrutura SearchResultsList onde os livros encontrados serão armazenados.
  */
+EMSCRIPTEN_KEEPALIVE
 void searchBooksByTitleSubstring(Node *node, const char *searchTerm, SearchResults *results) {
     if (node == NULL) {
         return;
@@ -490,12 +493,27 @@ void searchBooksByTitleSubstring(Node *node, const char *searchTerm, SearchResul
     // Percorre a subárvore direita
     searchBooksByTitleSubstring(node->right, searchTerm, results);
 }
+
+// Codigo comentado pq nao precisa da main no frontend
+
+/*
+    Funcoes para colocar o EMSCRIPTEN_KEEPALIVE
+
+    Adicionar livro
+    Remover Livro
+    Procurar livro por ID
+    procurar livro por titulo
+
+    nao ha necessidade de mostrar a arvora, nao vamo usar essa funcao, pro front so precisa dessa 4 funcoes ai
+*/
+
+/*
 int main(){
     int option;
     char input_isbn[20];
     char input_title_search[256]; // Variável para a string de busca por título
     Book newBook; // Variável para armazenar os dados do novo livro a ser inserido
-
+    
     Tree* AVL_Tree = createAVLTree();
     
     do{
@@ -511,85 +529,86 @@ int main(){
         scanf("%d", &option);
         // Limpar o buffer de entrada após scanf para evitar problemas com fgets
         while (getchar() != '\n'); // Consome o '\n' restante no buffer
-
+        
         switch(option){
             case 0:
-                printf("Shutting Down the Library!\n"); 
-                // TODO: Implementar função para liberar toda a memória alocada para os nós da árvore
-                // Exemplo: void freeTreeNodes(Node* node); e chamar freeTreeNodes(AVL_Tree->root);
-                free(AVL_Tree); // Libera a estrutura da Tree principal
-                break;
+            printf("Shutting Down the Library!\n"); 
+            // TODO: Implementar função para liberar toda a memória alocada para os nós da árvore
+            // Exemplo: void freeTreeNodes(Node* node); e chamar freeTreeNodes(AVL_Tree->root);
+            free(AVL_Tree); // Libera a estrutura da Tree principal
+            break;
             case 1:
-                printf("\n--- Insert New Book ---\n"); 
-                printf("Title: ");
-                fgets(newBook.title, sizeof(newBook.title), stdin);
-                newBook.title[strcspn(newBook.title, "\n")] = 0; // Remove o '\n' do final da string
-
-                printf("Author: ");
-                fgets(newBook.author, sizeof(newBook.author), stdin);
-                newBook.author[strcspn(newBook.author, "\n")] = 0; // Remove o '\n'
-
-                printf("ISBN: ");
-                fgets(newBook.isbn, sizeof(newBook.isbn), stdin);
-                newBook.isbn[strcspn(newBook.isbn, "\n")] = 0; // Remove o '\n'
-
-                printf("Year of Publication: ");  
-                scanf("%d", &newBook.year); // Lê o ano
-                while (getchar() != '\n'); // Limpa o buffer
-
-                printf("Quantity in Stock: ");  
-                scanf("%d", &newBook.stock); // Lê o estoque
-                while (getchar() != '\n'); // Limpa o buffer
-
-                insertAVL(AVL_Tree, newBook); // Insere o novo livro na árvore
-                break;
+            printf("\n--- Insert New Book ---\n"); 
+            printf("Title: ");
+            fgets(newBook.title, sizeof(newBook.title), stdin);
+            newBook.title[strcspn(newBook.title, "\n")] = 0; // Remove o '\n' do final da string
+            
+            printf("Author: ");
+            fgets(newBook.author, sizeof(newBook.author), stdin);
+            newBook.author[strcspn(newBook.author, "\n")] = 0; // Remove o '\n'
+            
+            printf("ISBN: ");
+            fgets(newBook.isbn, sizeof(newBook.isbn), stdin);
+            newBook.isbn[strcspn(newBook.isbn, "\n")] = 0; // Remove o '\n'
+            
+            printf("Year of Publication: ");  
+            scanf("%d", &newBook.year); // Lê o ano
+            while (getchar() != '\n'); // Limpa o buffer
+            
+            printf("Quantity in Stock: ");  
+            scanf("%d", &newBook.stock); // Lê o estoque
+            while (getchar() != '\n'); // Limpa o buffer
+            
+            insertAVL(AVL_Tree, newBook); // Insere o novo livro na árvore
+            break;
             case 2:
-                printf("\n--- Remove Book ---\n"); 
-                printf("Enter the ISBN of the book to be removed: ");
-                fgets(input_isbn, sizeof(input_isbn), stdin);
-                input_isbn[strcspn(input_isbn, "\n")] = 0; // Remove o '\n'
-                removeAVL(AVL_Tree, input_isbn); // Remove o livro pelo ISBN
-                break;
+            printf("\n--- Remove Book ---\n"); 
+            printf("Enter the ISBN of the book to be removed: ");
+            fgets(input_isbn, sizeof(input_isbn), stdin);
+            input_isbn[strcspn(input_isbn, "\n")] = 0; // Remove o '\n'
+            removeAVL(AVL_Tree, input_isbn); // Remove o livro pelo ISBN
+            break;
             case 3:
-                printf("\n--- AVL Tree (by ISBN) ---\n"); 
-                printAVL(AVL_Tree); // Imprime a árvore (mostra ISBNs e alturas)
-                printf("\nNumber of nodes: %d, Depth: %d\n", AVL_Tree->numberNodes, AVL_Tree->depth); 
-                break;
+            printf("\n--- AVL Tree (by ISBN) ---\n"); 
+            printAVL(AVL_Tree); // Imprime a árvore (mostra ISBNs e alturas)
+            printf("\nNumber of nodes: %d, Depth: %d\n", AVL_Tree->numberNodes, AVL_Tree->depth); 
+            break;
             case 4:
-                printf("\n--- Search Book by ISBN ---\n"); 
-                printf("Enter the ISBN of the book to be searched: ");
-                fgets(input_isbn, sizeof(input_isbn), stdin);
-                input_isbn[strcspn(input_isbn, "\n")] = 0; // Remove o '\n'
-                searchAVL(AVL_Tree, input_isbn); // Busca o livro pelo ISBN e o exibe
-                break;
+            printf("\n--- Search Book by ISBN ---\n"); 
+            printf("Enter the ISBN of the book to be searched: ");
+            fgets(input_isbn, sizeof(input_isbn), stdin);
+            input_isbn[strcspn(input_isbn, "\n")] = 0; // Remove o '\n'
+            searchAVL(AVL_Tree, input_isbn); // Busca o livro pelo ISBN e o exibe
+            break;
             case 5: // Busca por Título (Substring)
-                printf("\n--- Search Books by Title (Substring) ---\n"); 
-                printf("Enter the title sequence to search: ");
-                fgets(input_title_search, sizeof(input_title_search), stdin);
-                input_title_search[strcspn(input_title_search, "\n")] = 0; // Remove o '\n'
-
-                SearchResults foundBooks; // Cria uma estrutura para armazenar os resultados
-                startSearchResults(&foundBooks); // Inicializa a lista de resultados
-
-                // Chama a função de busca que percorre a árvore para encontrar livros por título
-                searchBooksByTitleSubstring(AVL_Tree->root, input_title_search, &foundBooks);
-
-                if (foundBooks.count > 0) {
-                    printf("\n%d Book(s) found with '%s' in the title:\n", foundBooks.count, input_title_search); 
-                    for (int i = 0; i < foundBooks.count; i++) {
-                        printf("\n--- Book %d ---\n", i + 1); 
-                        displayBook(foundBooks.books[i]); // Exibe cada livro encontrado
-                    }
-                } else {
-                    printf("\nNo books found with '%s' in the title.\n", input_title_search); 
+            printf("\n--- Search Books by Title (Substring) ---\n"); 
+            printf("Enter the title sequence to search: ");
+            fgets(input_title_search, sizeof(input_title_search), stdin);
+            input_title_search[strcspn(input_title_search, "\n")] = 0; // Remove o '\n'
+            
+            SearchResults foundBooks; // Cria uma estrutura para armazenar os resultados
+            startSearchResults(&foundBooks); // Inicializa a lista de resultados
+            
+            // Chama a função de busca que percorre a árvore para encontrar livros por título
+            searchBooksByTitleSubstring(AVL_Tree->root, input_title_search, &foundBooks);
+            
+            if (foundBooks.count > 0) {
+                printf("\n%d Book(s) found with '%s' in the title:\n", foundBooks.count, input_title_search); 
+                for (int i = 0; i < foundBooks.count; i++) {
+                    printf("\n--- Book %d ---\n", i + 1); 
+                    displayBook(foundBooks.books[i]); // Exibe cada livro encontrado
                 }
-
-                freeSearchResults(&foundBooks); // Libera a memória alocada para os resultados da busca
-                break;
+            } else {
+                printf("\nNo books found with '%s' in the title.\n", input_title_search); 
+            }
+            
+            freeSearchResults(&foundBooks); // Libera a memória alocada para os resultados da busca
+            break;
             default:
-                printf("\tInvalid Option! Please try again.\n"); 
+            printf("\tInvalid Option! Please try again.\n"); 
         }
     } while(option != 0);
-
+    
     return 0;
 }
+*/
