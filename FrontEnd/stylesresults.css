@@ -23,9 +23,15 @@
   padding: 32px;
 }
 
+.ContainerTopPag a{
+  text-decoration: none;
+  color: black;
+}
+
 .ContainerTopPag i {
   font-size: 35px;
   text-shadow: 3px 2px 5px rgba(0,0,0,0.33);
+
 }
 
 .ContainerPag {
@@ -151,4 +157,61 @@
   font-family: "Inter", sans-serif;
   font-weight: 700;
   font-size: 12px;
+}
+
+.ContainerPrincipal{
+  display:flex;
+  margin: 64px 64px 0px 64px;
+  width: 1072px;
+  height: 338px;
+}
+
+.ContainerPrincipal img{
+  width: 504px;
+  margin-right: 64px;
+  border-color: transparent;
+  border-radius: 8px;
+}
+
+.NameEFilter{
+  display: block;
+  margin-bottom:118px;
+  width: 504px;
+  height: 115px;
+  font-family: "Inter", sans-serif;
+}
+
+.NameEFilter h1{
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.NameEFilter p{
+  width: 39px;
+  height: 16px;
+  font-weight: 500;
+  padding: 6px 8px 8px 8px;
+  width: 55px;
+  height: 32px;
+  background-color: #CFF7D3;
+  color: #02542D;
+  border-radius: 8px;
+}
+
+.Resumo{
+  padding: 16px;
+  width: 504px;
+  height: 106px;
+  border: 1px solid #D9D9D9;
+  border-radius: 8px;
+  font-family: "Inter", sans-serif;
+}
+
+.Resumo h1{
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.Resumo p{
+  font-weight: 400;
 }
