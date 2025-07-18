@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <emscripten>
+#include <emscripten.h>
+
+// Funcao para iniciar nossas variaveis no javacscript
+void initLibrary();
 
 typedef struct Book {
     char title[256];
@@ -56,6 +59,24 @@ void removeAVL(Tree* tree, const char* isbn);
 void searchAVL(Tree* tree, const char* isbn);
 void printAVL(Tree* tree);
 void updateTreeMetrics(Tree* tree);
+
+// Funcoes wrapers pra nao mandar estruturas complexas pro javascript
+int addBook(const char* title, const char* author, const char* isbn, int year, int stock);
+int removeBookByISBN(const char* isbn);
+const char* searchAndGetJSON(const char* searchTerm);
+
+Tree* global_libraryTree = NULL;
+SearchResults global_searchResults;
+
+/*--------------daqui pra baixo eh codigo, daqui pra cima eh declaracao constante--------------------------*/
+EMSCRIPTEN_KEEPALIVE
+void initLibrary(){
+    if(global_libraryTree == NULL){
+        global_libraryTree = createAVLTree();
+        startSearchResults(&global_searchResults);
+        printf("biblioteca inicializada!\n");
+    }
+}
 
 /**
  * @brief Cria um Node.
@@ -342,7 +363,6 @@ Tree* createAVLTree() {
  * @param tree O ponteiro para a estrutura Tree.
  * @param Book O struct Livro a ser inserido.
  */
-EMSCRIPTEN_KEEPALIVE
 void insertAVL(Tree* tree, Book book) {
     if (tree == NULL) {
         printf("Error:Tree not started yet.\n");
@@ -364,7 +384,6 @@ void insertAVL(Tree* tree, Book book) {
  * @param tree O ponteiro para a estrutura Tree.
  * @param isbn O ISBN do livro a ser removido.
  */
-EMSCRIPTEN_KEEPALIVE
 void removeAVL(Tree* tree, const char* isbn) {
     if (tree == NULL) {
         printf("Erro: Árvore não inicializada.\n");
@@ -473,7 +492,6 @@ void freeSearchResults(SearchResults *lista) {
  * @param searchTerm A sequência de caracteres a ser procurada no título.
  * @param results Ponteiro para a estrutura SearchResultsList onde os livros encontrados serão armazenados.
  */
-EMSCRIPTEN_KEEPALIVE
 void searchBooksByTitleSubstring(Node *node, const char *searchTerm, SearchResults *results) {
     if (node == NULL) {
         return;
@@ -494,10 +512,88 @@ void searchBooksByTitleSubstring(Node *node, const char *searchTerm, SearchResul
     searchBooksByTitleSubstring(node->right, searchTerm, results);
 }
 
+EMSCRIPTEN_KEEPALIVE
+int addBook(const char* title, const char* author, const char* isbn, int year, int stock){
+    if(global_libraryTree == NULL) return -1; // ERROR: nao inicializado
+
+    if(searchNode(global_libraryTree->root, isbn) != NULL){
+        return 0; // isbn ja existe
+    }
+
+    Book newBook;
+
+    strncpy(newBook.title, title, sizeof(newBook.title) - 1);
+    newBook.title[sizeof(newBook.title) - 1] = '\0';
+
+    strncpy(newBook.author, author, sizeof(newBook.author) - 1);
+    newBook.author[sizeof(newBook.author) - 1] = '\0';
+
+    strncpy(newBook.isbn, isbn, sizeof(newBook.isbn) - 1);
+    newBook.isbn[sizeof(newBook.isbn) - 1] = '\0';
+    
+    newBook.year = year;
+    newBook.stock = stock;
+
+    insertAVL(global_libraryTree, newBook);
+    return 1; // Sucesso
+}
+
+EMSCRIPTEN_KEEPALIVE
+int removeBookByISBN(const char* isbn) {
+    if (global_libraryTree == NULL || searchNode(global_libraryTree->root, isbn) == NULL) {
+        return 0; // Livro não encontrado
+    }
+    removeAVL(global_libraryTree, isbn);
+    return 1; // Sucesso
+}
+
+EMSCRIPTEN_KEEPALIVE
+const char* searchAndGetJSON(const char* searchTerm) {
+    if (global_libraryTree == NULL || global_libraryTree->root == NULL) {
+        return "[]"; // Retorna um array JSON vazio se a árvore estiver vazia
+    }
+
+    // Limpa os resultados da busca anterior
+    freeSearchResults(&global_searchResults);
+    startSearchResults(&global_searchResults);
+
+    searchBooksByTitleSubstring(global_libraryTree->root, searchTerm, &global_searchResults);
+
+    if (global_searchResults.count == 0) {
+        return "[]";
+    }
+
+    // Aloca um buffer grande o suficiente para a string JSON
+    // CUIDADO: Esta é uma abordagem simplificada. Para produção, uma biblioteca JSON ou um
+    // construtor de string dinâmico seria mais seguro para evitar estouro de buffer.
+    static char jsonBuffer[4096]; // Buffer estático para simplicidade
+    char tempBuffer[512];
+    
+    strcpy(jsonBuffer, "[");
+
+    for (int i = 0; i < global_searchResults.count; i++) {
+        // Formata cada livro como um objeto JSON
+        // Nota: Isso não trata caracteres especiais como aspas dentro dos campos.
+        sprintf(tempBuffer, "{\"title\":\"%s\",\"author\":\"%s\",\"isbn\":\"%s\",\"year\":%d,\"stock\":%d}",
+                global_searchResults.books[i].title,
+                global_searchResults.books[i].author,
+                global_searchResults.books[i].isbn,
+                global_searchResults.books[i].year,
+                global_searchResults.books[i].stock);
+        
+        strcat(jsonBuffer, tempBuffer);
+        if (i < global_searchResults.count - 1) {
+            strcat(jsonBuffer, ",");
+        }
+    }
+    strcat(jsonBuffer, "]");
+
+    return jsonBuffer;
+}
 // Codigo comentado pq nao precisa da main no frontend
 
 /*
-    Funcoes para colocar o EMSCRIPTEN_KEEPALIVE
+    Funcoes para colocar o 
 
     Adicionar livro
     Remover Livro
