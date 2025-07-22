@@ -5,13 +5,28 @@
 		<title>Document</title>
 	</head>
 	<body>
+		<h2>Iniciar</h2>
 		<button id="initButton">Iniciar</button>
 
+		<br />
+		<hr />
+
 		<input type="text" placeholder="Nome do libro" id="titleInput" />
+		<hr />
 		<input type="text" placeholder="author" id="authorInput" />
+		<hr />
 		<input type="text" placeholder="ano" id="yearInput" />
+		<hr />
 		<input type="text" placeholder="stock" id="stockInput" />
-		<input type="button" placeholder="stock" id="submitButton" />
+		<hr />
+		<input type="button" value="botao" id="submitButton" />
+		<hr />
+
+		<br />
+
+		<h2>Procurar livro</h2>
+		<input type="text" placeholder="Titulo" id="titleSearch" />
+		<button id="searchButton">Buscar</button>
 
 		<script type="module">
 			import EmscriptenModule from "./AVL_Tree.mjs";
@@ -28,8 +43,7 @@
 						Module._initLibrary();
 					} finally {
 						// 5. ESSENCIAL: Libera a memória para evitar vazamentos, não importa o que aconteça.
-						console.log(`Liberando a memória no endereço ${bookPtr}.`);
-						Module._free_book_buffer(bookPtr);
+						console.log(`Liberando a memória no endereço`);
 					}
 				});
 
@@ -42,9 +56,6 @@
 
 				// --- Adiciona o evento de clique ao botão ---
 				submitButton.addEventListener("click", () => {
-					// 1. Aloca memória no lado do C/WASM e obtém um ponteiro.
-					const bookPtr = Module._create_book_buffer();
-
 					try {
 						// 2. Pega os valores dos inputs do HTML.
 						const title = titleInput.value;
@@ -55,28 +66,44 @@
 
 						// 3. Escreve os dados na memória do WASM, usando os offsets.
 						// Para strings: stringToUTF8(stringJS, ponteiro, tamanho_max_bytes)
-						Module.stringToUTF8(
-							title,
-							bookPtr + Module._get_title_offset(),
-							256
-						);
-						Module.stringToUTF8(
-							author,
-							bookPtr + Module._get_author_offset(),
-							128
-						);
 
-						// Para números: setValue(ponteiro, valor, tipo)
-						Module.setValue(bookPtr + Module._get_year_offset(), year, "i32"); // i32 é um inteiro de 32 bits
-						Module.setValue(bookPtr + Module._get_stock_offset(), stock, "i32");
-
-						// 4. Agora que a memória está preenchida, chamamos a função C principal.
-						console.log(`Passando o ponteiro ${bookPtr} para a função C...`);
-						Module._process_book(bookPtr);
+						Module._addBook(title, author, "abc123", year, stock);
+						console.log("livro adicionado");
 					} finally {
 						// 5. ESSENCIAL: Libera a memória para evitar vazamentos, não importa o que aconteça.
-						console.log(`Liberando a memória no endereço ${bookPtr}.`);
-						Module._free_book_buffer(bookPtr);
+						console.log(`livro adicionado2.`);
+					}
+				});
+
+				const titleSearch = document.getElementById("titleSearch");
+				const searchButton = document.getElementById("searchButton");
+
+				searchButton.addEventListener("click", () => {
+					try {
+						// dentro do seu <script type="module"> e EmscriptenModule().then(Module => { ... })
+
+						// 1. Crie o wrapper para a sua função
+						// cwrap('nome_da_funcao_C', 'tipo_de_retorno_JS', ['tipos_de_argumentos_JS'])
+						const searchAndGetJSON = Module.cwrap(
+							"searchAndGetJSON",
+							"string",
+							["string"]
+						);
+
+						// 2. Chame a função como se fosse uma função JavaScript normal!
+						const jsonResult = searchAndGetJSON(titleSearch.value); // O resultado já é uma string JS!
+
+						console.log(titleSearch.value);
+						// 3. Imprima e use o resultado
+						console.log("String JSON recebida do C/WASM:");
+						console.log(jsonResult);
+
+						// Agora você pode até mesmo converter o JSON para um objeto JavaScript
+						const data = JSON.parse(jsonResult);
+						console.log("Objeto JavaScript convertido:");
+						console.log(data);
+					} finally {
+						console.log("livro buscado");
 					}
 				});
 			});
