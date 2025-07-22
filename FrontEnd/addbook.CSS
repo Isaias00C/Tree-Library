@@ -37,6 +37,7 @@
   font-family: "Inter", sans-serif;
   margin-left: 25px;
   font-size: 16px;
+  text-decoration: none;
 }
 
 .ContainerAddBook {
@@ -105,7 +106,7 @@
 
 .AddBookButton{
   width: 50%;
-  height: 20%;
+  height: 50px;
   padding: 16px;
   border: none;
   border-radius: 16px;
