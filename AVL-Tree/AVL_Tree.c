@@ -475,6 +475,7 @@ void addBookToResultsList(SearchResults *list, Book book) {
         list->books = newList;
     }
     list->books[list->count++] = book; // Adiciona o livro (copia a struct)
+    printf("count dos livros: %d", list->count);
 }
 
 // Função para liberar a memória alocada pela lista de resultados
@@ -550,6 +551,7 @@ int removeBookByISBN(const char* isbn) {
 EMSCRIPTEN_KEEPALIVE
 const char* searchAndGetJSON(const char* searchTerm) {
     if (global_libraryTree == NULL || global_libraryTree->root == NULL) {
+        printf("algo nulo\n");
         return "[]"; // Retorna um array JSON vazio se a árvore estiver vazia
     }
 
@@ -560,6 +562,7 @@ const char* searchAndGetJSON(const char* searchTerm) {
     searchBooksByTitleSubstring(global_libraryTree->root, searchTerm, &global_searchResults);
 
     if (global_searchResults.count == 0) {
+        printf("count = 0\n");
         return "[]";
     }
 
