@@ -23,45 +23,25 @@
   padding: 32px;
 }
 
-.ContainerTopPag a{
+.ContainerTopPag a {
   text-decoration: none;
   color: black;
 }
 
 .ContainerTopPag i {
   font-size: 35px;
-  text-shadow: 3px 2px 5px rgba(0,0,0,0.33);
+  text-shadow: 3px 2px 5px rgba(0, 0, 0, 0.33);
+}
 
+.Inicio {
+  font-family: "Inter", sans-serif;
+  margin-left: 25px;
+  font-size: 16px;
 }
 
 .ContainerPag {
   display: flex;
   padding: 32px;
-}
-
-.Filtro{
-  width: 240px;
-  height: 156px;
-  border: 2px solid;
-  border-color: var(--border-color);
-  border-radius: 8px;
-  padding: 16px 16px;
-  font-family: "Inter", sans-serif;
-  font-weight: 400;
-  font-size: 16px;
-}
-
-.Filtro p{
-  margin-bottom: 12px;
-  font-weight: 700;
-}
-
-.Filtro label{
-  font-size: 14px;
-}
-
-#FiltroSelect{
-  margin-bottom: 12px;
 }
 
 .main-content {
@@ -71,9 +51,15 @@
   margin-left: 64px;
 }
 
+.main-header {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Cria um espaço entre a busca e o botão */
+  margin-bottom: 46px; /* Movemos a margem de baixo para o container pai */
+}
+
 .search-bar {
   position: relative;
-  margin-bottom: 46px;
 }
 
 .search-bar .ph-magnifying-glass {
@@ -85,6 +71,8 @@
 }
 
 .search-bar input {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
   width: 300px;
   padding: 10px 10px 10px 40px;
   border: 2px solid var(--border-color);
@@ -96,6 +84,33 @@
 
 .search-bar input::placeholder {
   color: var(--secondary-text-color);
+}
+
+.add-book {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--accent-bg-color);
+  color: var(--accent-text-color);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.add-book:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.add-book i {
+  margin-left: 0;
+  font-size: 20px;
 }
 
 .view-toggle {
@@ -124,11 +139,11 @@
 
 .book-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: 24px;
 }
 
-.book-card{
+.book-card {
   width: 262px;
   height: 347px;
   border: 2px solid var(--border-color);
@@ -138,80 +153,114 @@
   color: black;
 }
 
-.book-cover-placeholder img{
+.book-cover-placeholder img {
   width: 230px;
   height: 247px;
   border-radius: 5px;
   margin-bottom: 16px;
 }
 
-
-.book-title{
+.book-title {
   margin-bottom: 6px;
   font-family: "Inter", sans-serif;
   font-weight: 400;
   font-size: 16px;
 }
 
-.book-author{
+.book-author {
   font-family: "Inter", sans-serif;
   font-weight: 700;
   font-size: 12px;
 }
 
-.ContainerPrincipal{
-  display:flex;
-  margin: 64px 64px 0px 64px;
-  width: 1072px;
-  height: 338px;
+.ContainerPrincipal {
+  display: flex;
+  justify-content: center;
+  height: 70vh;
+  margin: 32px;
 }
 
-.ContainerPrincipal img{
-  width: 504px;
-  margin-right: 64px;
-  border-color: transparent;
-  border-radius: 8px;
+.ContainerPrincipal img {
+  height: 90%;
+  margin-right: 10%;
+  border-radius: 5px;
 }
 
-.NameEFilter{
-  display: block;
-  margin-bottom:118px;
-  width: 504px;
-  height: 115px;
+.NameEFilter {
+  display: flex;
+  flex-direction: column;
+  margin-bottom:5%;
+  width: 100%;
   font-family: "Inter", sans-serif;
 }
 
-.NameEFilter h1{
+.NameEFilter h1 {
   font-size: 24px;
   font-weight: 700;
 }
 
-.NameEFilter p{
-  width: 39px;
-  height: 16px;
-  font-weight: 500;
-  padding: 6px 8px 8px 8px;
-  width: 55px;
-  height: 32px;
-  background-color: #CFF7D3;
-  color: #02542D;
-  border-radius: 8px;
-}
-
-.Resumo{
+.Resumo {
   padding: 16px;
-  width: 504px;
-  height: 106px;
-  border: 1px solid #D9D9D9;
+  width: 80%;
+  border: 1px solid #d9d9d9;
   border-radius: 8px;
   font-family: "Inter", sans-serif;
 }
 
-.Resumo h1{
+.Resumo h1 {
   font-size: 16px;
   margin-bottom: 8px;
 }
 
-.Resumo p{
+.Resumo p {
   font-weight: 400;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 48px;
+  padding-bottom: 32px;
+}
+
+.pagination button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--primary-text-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-text-color);
+  border-color: var(--accent-bg-color);
+}
+
+.pagination button:disabled {
+  background-color: #f8f9fa;
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pagination button i {
+  font-size: 22px;
+}
+
+.pagination span {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--secondary-text-color);
+  min-width: 120px;
+  text-align: center;
 }

@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>resultados</title>
+    <title>Resultado Da Busca</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -12,33 +12,34 @@
     />
     <link rel="stylesheet" href="./stylesresults.css" />
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script
+      src="https://kit.fontawesome.com/5c95bc2188.js"
+      crossorigin="anonymous"
+    ></script>
   </head>
   <body>
-    <div class="ContainerTopPag"><a href="/FrontEnd/resultados.html"><i class="ph ph-books"></a></i></div>
+    <div class="ContainerTopPag">
+      <a href="/FrontEnd/resultados.html"><i class="ph ph-books"></i></a>
+      <a class="Inicio" href="/FrontEnd/resultados.html">Inicio</a>
+    </div>
     <div class="ContainerPag">
-      <aside class="Filtro">
-        <p>Gênero</p>
-        <input id="FiltroSelect" type="checkbox" name="Filtro" />
-        <label for="FiltroSelect">Ação</label><br />
-        <input id="FiltroSelect" type="checkbox" name="Filtro" />
-        <label for="FiltroSelect">Romance</label><br />
-        <input id="FiltroSelect" type="checkbox" name="Filtro" />
-        <label for="FiltroSelect">Romance</label><br />
-      </aside>
-
       <main class="main-content">
         <header class="main-header">
           <div class="search-bar">
             <i class="ph ph-magnifying-glass"></i>
             <input type="text" placeholder="Busca" />
           </div>
+          <a class="add-book" href="addbook.html">
+            <span>Add Livro</span>
+            <i class="fa-solid fa-plus"></i>
+          </a>
         </header>
         <section class="book-grid">
           <a href="/FrontEnd/livro.html" class="book-card">
             <div class="book-cover-placeholder">
               <img
                 class="imageBook"
-                src="/FrontEnd/Assets/Imagem1.jpg"
+                src="/FrontEnd/Assets/imagem1.jpg"
                 Capa
                 do
                 Livro
@@ -130,5 +131,14 @@
         </section>
       </main>
     </div>
+    <footer class="pagination">
+      <button id="prevPageBtn" title="Página Anterior">
+        <i class="ph ph-arrow-left"></i>
+      </button>
+      <span id="pageInfo"></span>
+      <button id="nextPageBtn" title="Próxima Página">
+        <i class="ph ph-arrow-right"></i>
+      </button>
+    </footer>
   </body>
 </html>
