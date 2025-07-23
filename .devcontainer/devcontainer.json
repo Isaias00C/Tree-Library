@@ -1,0 +1,46 @@
+{
+	// Nome do seu ambiente de desenvolvimento. Aparecerá no canto do VS Code.
+	"name": "Emscripten C/C++ (Dev Container)",
+
+	// Configuração de build: aponta para o Dockerfile que acabamos de criar.
+	"build": {
+		"dockerfile": "Dockerfile",
+		// Argumentos de build (opcional).
+		"args": {}
+	},
+
+	// Configurações e personalizações específicas do VS Code.
+	"customizations": {
+		"vscode": {
+			// Lista de extensões que serão instaladas AUTOMATICAMENTE dentro do contêiner.
+			"extensions": [
+				// Pacote essencial para C/C++ (IntelliSense, debug, etc.)
+				"ms-vscode.cpptools-extension-pack",
+				// Suporte para arquivos e ferramentas CMake
+				"ms-vscode.cmake-tools",
+				// Um formatador de código popular que funciona com vários tipos de arquivo
+				"esbenp.prettier-vscode",
+				"ritwickdey.liveserver"
+			],
+			// Configurações do editor que serão aplicadas apenas dentro do contêiner.
+			"settings": {
+				"terminal.integrated.defaultProfile.linux": "bash"
+			}
+		}
+	},
+
+	// Mapeia portas do contêiner para a sua máquina local (host).
+	// Essencial para testar a saída do Emscripten com um servidor web.
+	"forwardPorts": [
+		8080 // Acesse no seu navegador via http://localhost:8080
+	],
+
+	// Comando executado UMA VEZ após a criação do contêiner.
+	// Ótimo para verificar a versão ou instalar dependências do projeto.
+	"postCreateCommand": "emcc --version && cmake --version",
+
+	// Define o usuário com o qual o VS Code irá operar dentro do contêiner.
+	// 'node' é o usuário padrão não-root na imagem emscripten/emsdk.
+	// Usar um usuário não-root é uma boa prática de segurança.
+	"remoteUser": "vscode"
+}

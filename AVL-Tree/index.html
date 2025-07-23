@@ -1,0 +1,149 @@
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>Document</title>
+	</head>
+	<body>
+		<h2>Iniciar</h2>
+		<button id="initButton">Iniciar</button>
+
+		<br />
+		<br />
+		<br />
+
+		<input type="text" placeholder="Nome do libro" id="titleInput" />
+		<br />
+		<input type="text" placeholder="author" id="authorInput" />
+		<br />
+		<input type="text" placeholder="ano" id="yearInput" />
+		<br />
+		<input type="text" placeholder="Id do livro" id="isbnInput" />
+		<br />
+		<input type="text" placeholder="stock" id="stockInput" />
+		<br />
+		<input type="button" value="botao" id="submitButton" />
+		<br />
+
+		<br />
+		<br />
+		<br />
+
+		<h2>Procurar livro</h2>
+		<input type="text" placeholder="Titulo" id="titleSearch" />
+		<button id="searchButton">Buscar</button>
+
+		<br />
+		<br />
+
+		<div class="result">
+			<h2>JSON Retornado pelo C/WASM</h2>
+			<pre id="jsonOutput">Aguardando...</pre>
+		</div>
+
+		<script type="module">
+			import EmscriptenModule from "./AVL_Tree.mjs";
+
+			EmscriptenModule().then((Module) => {
+				console.log("Módulo WASM do processador de livros pronto!");
+
+				const initButton = document.getElementById("initButton");
+
+				initButton.addEventListener("click", () => {
+					// 1. Aloca memória no lado do C/WASM e obtém um ponteiro.
+
+					try {
+						Module._initLibrary();
+					} finally {
+						// 5. ESSENCIAL: Libera a memória para evitar vazamentos, não importa o que aconteça.
+						console.log(`Liberando a memória no endereço`);
+					}
+				});
+
+				// --- Pega as referências dos elementos do formulário ---
+				const titleInput = document.getElementById("titleInput");
+				const authorInput = document.getElementById("authorInput");
+				const yearInput = document.getElementById("yearInput");
+				const isbnInput = document.getElementById("isbnInput");
+				const stockInput = document.getElementById("stockInput");
+				const submitButton = document.getElementById("submitButton");
+				const jsonOutput = document.getElementById("jsonOutput");
+				// --- Adiciona o evento de clique ao botão ---
+				submitButton.addEventListener("click", () => {
+					try {
+						const addBookJS = Module.cwrap(
+							"addBook", // Nome da função em C
+							"string", // O tipo de RETORNO que queremos no JavaScript
+							["string", "string", "string", "number", "number"] // Tipos dos ARGUMENTOS
+						);
+
+						// 2. Pega os valores dos inputs do HTML.
+						const title = document.getElementById("titleInput").value;
+						const author = document.getElementById("authorInput").value;
+						const year = parseInt(
+							document.getElementById("yearInput").value,
+							10
+						);
+						const isbn = document.getElementById("isbnInput").value;
+						const stock = parseInt(
+							document.getElementById("stockInput").value,
+							10
+						);
+
+						console.log("Enviando dados para o C/WASM...");
+
+						// Chamamos nossa função JS. Ela cuida de tudo!
+						const returnedJsonString = addBookJS(
+							title,
+							author,
+							isbn,
+							year,
+							stock
+						);
+
+						console.log("String JSON recebida do C:", returnedJsonString);
+
+						// Exibimos o resultado formatado na tela
+						const responseObject = JSON.parse(returnedJsonString);
+						jsonOutput.textContent = JSON.stringify(responseObject, null, 2);
+					} finally {
+						// 5. ESSENCIAL: Libera a memória para evitar vazamentos, não importa o que aconteça.
+						console.log(`livro adicionado2.`);
+					}
+				});
+
+				const titleSearch = document.getElementById("titleSearch");
+				const searchButton = document.getElementById("searchButton");
+
+				searchButton.addEventListener("click", () => {
+					try {
+						// dentro do seu <script type="module"> e EmscriptenModule().then(Module => { ... })
+
+						// 1. Crie o wrapper para a sua função
+						// cwrap('nome_da_funcao_C', 'tipo_de_retorno_JS', ['tipos_de_argumentos_JS'])
+						const searchAndGetJSON = Module.cwrap(
+							"searchAndGetJSON",
+							"string",
+							["string"]
+						);
+
+						// 2. Chame a função como se fosse uma função JavaScript normal!
+						const jsonResult = searchAndGetJSON(titleSearch.value); // O resultado já é uma string JS!
+
+						console.log(titleSearch.value);
+						// 3. Imprima e use o resultado
+						console.log("String JSON recebida do C/WASM:");
+						console.log(jsonResult);
+
+						// Agora você pode até mesmo converter o JSON para um objeto JavaScript
+						const data = JSON.parse(jsonResult);
+						console.log("Objeto JavaScript convertido:");
+						console.log(data);
+					} finally {
+						console.log("livro buscado");
+					}
+				});
+			});
+		</script>
+	</body>
+</html>
