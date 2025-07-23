@@ -8,7 +8,7 @@ body {
   position: relative;
   display: flex;
   background-color: #ffffff;
-  background: url(Assets/Imagem2.jpg) no-repeat center center/cover;
+  background: url(../Assets/Imagem2.jpg) no-repeat center center/cover;
   justify-content: center;
   align-items: center;
   min-height: 100vh;
@@ -21,7 +21,7 @@ body {
   align-items: center;
   width: 700px;
   height: 350px;
-  background: url(Assets/Imagem1.jpg) no-repeat center center/cover;
+  background: url(../Assets/Imagem1.jpg) no-repeat center center/cover;
   border-color: transparent;
   border-radius: 20px;
   color: transparent;
