@@ -61,7 +61,7 @@ void printAVL(Tree* tree);
 void updateTreeMetrics(Tree* tree);
 
 // Funcoes wrapers pra nao mandar estruturas complexas pro javascript
-int addBook(const char* title, const char* author, const char* isbn, int year, int stock);
+const char* addBook(const char* title, const char* author, const char* isbn, int year, int stock);
 int removeBookByISBN(const char* isbn);
 const char* searchAndGetJSON(const char* searchTerm);
 
@@ -475,7 +475,6 @@ void addBookToResultsList(SearchResults *list, Book book) {
         list->books = newList;
     }
     list->books[list->count++] = book; // Adiciona o livro (copia a struct)
-    printf("count dos livros: %d", list->count);
 }
 
 // Função para liberar a memória alocada pela lista de resultados
@@ -513,12 +512,14 @@ void searchBooksByTitleSubstring(Node *node, const char *searchTerm, SearchResul
     searchBooksByTitleSubstring(node->right, searchTerm, results);
 }
 
+static char book_json_buffer[512];
+
 EMSCRIPTEN_KEEPALIVE
-int addBook(const char* title, const char* author, const char* isbn, int year, int stock){
-    if(global_libraryTree == NULL) return -1; // ERROR: nao inicializado
+const char* addBook(const char* title, const char* author, const char* isbn, int year, int stock){
+    if(global_libraryTree == NULL) return NULL; // ERROR: nao inicializado
 
     if(searchNode(global_libraryTree->root, isbn) != NULL){
-        return 0; // isbn ja existe
+        return NULL; // isbn ja existe
     }
 
     Book newBook;
@@ -535,8 +536,11 @@ int addBook(const char* title, const char* author, const char* isbn, int year, i
     newBook.year = year;
     newBook.stock = stock;
 
+    sprintf(book_json_buffer, "{\"status\":\"success\",\"book\":{\"title\":\"%s\",\"author\":\"%s\",\"isbn\":\"%s\",\"year\":%d,\"stock\":%d}}",
+            newBook.title, newBook.author, newBook.isbn, newBook.year, newBook.stock);
+
     insertAVL(global_libraryTree, newBook);
-    return 1; // Sucesso
+    return book_json_buffer; // Sucesso
 }
 
 EMSCRIPTEN_KEEPALIVE

@@ -9,24 +9,37 @@
 		<button id="initButton">Iniciar</button>
 
 		<br />
-		<hr />
+		<br />
+		<br />
 
 		<input type="text" placeholder="Nome do libro" id="titleInput" />
-		<hr />
+		<br />
 		<input type="text" placeholder="author" id="authorInput" />
-		<hr />
+		<br />
 		<input type="text" placeholder="ano" id="yearInput" />
-		<hr />
+		<br />
+		<input type="text" placeholder="Id do livro" id="isbnInput" />
+		<br />
 		<input type="text" placeholder="stock" id="stockInput" />
-		<hr />
+		<br />
 		<input type="button" value="botao" id="submitButton" />
-		<hr />
+		<br />
 
+		<br />
+		<br />
 		<br />
 
 		<h2>Procurar livro</h2>
 		<input type="text" placeholder="Titulo" id="titleSearch" />
 		<button id="searchButton">Buscar</button>
+
+		<br />
+		<br />
+
+		<div class="result">
+			<h2>JSON Retornado pelo C/WASM</h2>
+			<pre id="jsonOutput">Aguardando...</pre>
+		</div>
 
 		<script type="module">
 			import EmscriptenModule from "./AVL_Tree.mjs";
@@ -51,24 +64,48 @@
 				const titleInput = document.getElementById("titleInput");
 				const authorInput = document.getElementById("authorInput");
 				const yearInput = document.getElementById("yearInput");
+				const isbnInput = document.getElementById("isbnInput");
 				const stockInput = document.getElementById("stockInput");
 				const submitButton = document.getElementById("submitButton");
-
+				const jsonOutput = document.getElementById("jsonOutput");
 				// --- Adiciona o evento de clique ao botão ---
 				submitButton.addEventListener("click", () => {
 					try {
+						const addBookJS = Module.cwrap(
+							"addBook", // Nome da função em C
+							"string", // O tipo de RETORNO que queremos no JavaScript
+							["string", "string", "string", "number", "number"] // Tipos dos ARGUMENTOS
+						);
+
 						// 2. Pega os valores dos inputs do HTML.
-						const title = titleInput.value;
-						const author = authorInput.value;
-						// Usamos parseInt para garantir que os números sejam inteiros.
-						const year = parseInt(yearInput.value, 10) || 0;
-						const stock = parseInt(stockInput.value, 10) || 0;
+						const title = document.getElementById("titleInput").value;
+						const author = document.getElementById("authorInput").value;
+						const year = parseInt(
+							document.getElementById("yearInput").value,
+							10
+						);
+						const isbn = document.getElementById("isbnInput").value;
+						const stock = parseInt(
+							document.getElementById("stockInput").value,
+							10
+						);
 
-						// 3. Escreve os dados na memória do WASM, usando os offsets.
-						// Para strings: stringToUTF8(stringJS, ponteiro, tamanho_max_bytes)
+						console.log("Enviando dados para o C/WASM...");
 
-						Module._addBook(title, author, "abc123", year, stock);
-						console.log("livro adicionado");
+						// Chamamos nossa função JS. Ela cuida de tudo!
+						const returnedJsonString = addBookJS(
+							title,
+							author,
+							isbn,
+							year,
+							stock
+						);
+
+						console.log("String JSON recebida do C:", returnedJsonString);
+
+						// Exibimos o resultado formatado na tela
+						const responseObject = JSON.parse(returnedJsonString);
+						jsonOutput.textContent = JSON.stringify(responseObject, null, 2);
 					} finally {
 						// 5. ESSENCIAL: Libera a memória para evitar vazamentos, não importa o que aconteça.
 						console.log(`livro adicionado2.`);
