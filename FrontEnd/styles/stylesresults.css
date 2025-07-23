@@ -1,0 +1,266 @@
+:root {
+  /* Paleta de Cores (Tema Claro) */
+  --bg-color: #f8f9fa; /* Fundo principal (cinza bem claro) */
+  --surface-color: #ffffff; /* Cor de "superfície" para cards e sidebar (branco) */
+  --border-color: #e9ecef; /* Cor das bordas */
+  --primary-text-color: #212529; /* Cor do texto principal (preto/cinza escuro) */
+  --secondary-text-color: #6c757d; /* Cor do texto secundário (cinza) */
+  --accent-bg-color: #212529; /* Cor de destaque (fundo do botão ativo) */
+  --accent-text-color: #ffffff; /* Cor do texto do botão ativo */
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+.ContainerTopPag {
+  display: flex;
+  align-items: center;
+  height: 60px;
+  border-bottom: 2px solid var(--border-color);
+  padding: 32px;
+}
+
+.ContainerTopPag a {
+  text-decoration: none;
+  color: black;
+}
+
+.ContainerTopPag i {
+  font-size: 35px;
+  text-shadow: 3px 2px 5px rgba(0, 0, 0, 0.33);
+}
+
+.Inicio {
+  font-family: "Inter", sans-serif;
+  margin-left: 25px;
+  font-size: 16px;
+}
+
+.ContainerPag {
+  display: flex;
+  padding: 32px;
+}
+
+.main-content {
+  width: 832px;
+  height: 806px;
+  flex: 1;
+  margin-left: 64px;
+}
+
+.main-header {
+  display: flex;
+  align-items: center;
+  gap: 16px; /* Cria um espaço entre a busca e o botão */
+  margin-bottom: 46px; /* Movemos a margem de baixo para o container pai */
+}
+
+.search-bar {
+  position: relative;
+}
+
+.search-bar .ph-magnifying-glass {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--secondary-text-color);
+}
+
+.search-bar input {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  width: 300px;
+  padding: 10px 10px 10px 40px;
+  border: 2px solid var(--border-color);
+  border-radius: 9999px;
+  font-size: 1rem;
+  background-color: var(--surface-color);
+  color: var(--primary-text-color);
+}
+
+.search-bar input::placeholder {
+  color: var(--secondary-text-color);
+}
+
+.add-book {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--accent-bg-color);
+  color: var(--accent-text-color);
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: transform 0.2s ease, filter 0.2s ease;
+}
+
+.add-book:hover {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.add-book i {
+  margin-left: 0;
+  font-size: 20px;
+}
+
+.view-toggle {
+  display: flex;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 2px;
+}
+
+.toggle-btn {
+  padding: 8px 16px;
+  border: none;
+  background-color: transparent;
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--secondary-text-color);
+  border-radius: 5px;
+  transition: all 0.2s ease;
+}
+
+.toggle-btn.active {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-text-color);
+}
+
+.book-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 24px;
+}
+
+.book-card {
+  width: 262px;
+  height: 347px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  text-decoration: none;
+  padding: 16px;
+  color: black;
+}
+
+.book-cover-placeholder img {
+  width: 230px;
+  height: 247px;
+  border-radius: 5px;
+  margin-bottom: 16px;
+}
+
+.book-title {
+  margin-bottom: 6px;
+  font-family: "Inter", sans-serif;
+  font-weight: 400;
+  font-size: 16px;
+}
+
+.book-author {
+  font-family: "Inter", sans-serif;
+  font-weight: 700;
+  font-size: 12px;
+}
+
+.ContainerPrincipal {
+  display: flex;
+  justify-content: center;
+  height: 70vh;
+  margin: 32px;
+}
+
+.ContainerPrincipal img {
+  height: 90%;
+  margin-right: 10%;
+  border-radius: 5px;
+}
+
+.NameEFilter {
+  display: flex;
+  flex-direction: column;
+  margin-bottom:5%;
+  width: 100%;
+  font-family: "Inter", sans-serif;
+}
+
+.NameEFilter h1 {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.Resumo {
+  padding: 16px;
+  width: 80%;
+  border: 1px solid #d9d9d9;
+  border-radius: 8px;
+  font-family: "Inter", sans-serif;
+}
+
+.Resumo h1 {
+  font-size: 16px;
+  margin-bottom: 8px;
+}
+
+.Resumo p {
+  font-weight: 400;
+}
+
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 16px;
+  margin-top: 48px;
+  padding-bottom: 32px;
+}
+
+.pagination button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border: 1px solid var(--border-color);
+  background-color: var(--surface-color);
+  color: var(--primary-text-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.pagination button:hover:not(:disabled) {
+  background-color: var(--accent-bg-color);
+  color: var(--accent-text-color);
+  border-color: var(--accent-bg-color);
+}
+
+.pagination button:disabled {
+  background-color: #f8f9fa;
+  color: #adb5bd;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.pagination button i {
+  font-size: 22px;
+}
+
+.pagination span {
+  font-family: "Inter", sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  color: var(--secondary-text-color);
+  min-width: 120px;
+  text-align: center;
+}
