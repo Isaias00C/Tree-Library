@@ -12,6 +12,7 @@
     />
     <link rel="stylesheet" href="../styles/addbook.CSS" />
     <script src="https://unpkg.com/@phosphor-icons/web"></script>
+    <script src="../JSs/addbook.js" defer></script>
   </head>
   <body>
     <div class="ContainerTopPag">
@@ -27,6 +28,7 @@
             <label for="titutoBook">Nome do Livro</label>
             <input
               placeholder="Nome"
+              required
               type="text"
               id="titutoBook"
               name="titulo"
@@ -36,9 +38,10 @@
             <label for="autorBook">Nome do Autor</label>
             <input
               placeholder="Autor"
+              required
               type="text"
-              id="titutoBook"
-              name="titulo"
+              id="autorBook"
+              name="autor"
             />
           </div>
           <button class="AddBookButton" type="submit">Adicionar Livro</button>
