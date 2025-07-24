@@ -42,7 +42,7 @@ EmscriptenModule().then((Module) => {
     resultados.forEach((livro) => {
       const card = document.createElement("a")
       card.className = "book-card"
-      card.href = `livro.html?isbn=${encodeURIComponent(livro.isbn)}`
+      card.href = `livro.html?isbn=${encodeURIComponent(livro.isbn)}&title=${encodeURIComponent(livro.title)}&author=${encodeURIComponent(livro.author)}`
       card.innerHTML = `
         <div class="book-cover-placeholder">
           <img class="imageBook" src="../Assets/Imagem1.jpg" />

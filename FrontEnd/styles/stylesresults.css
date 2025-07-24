@@ -220,7 +220,8 @@
 
 .Resumo {
   padding: 16px;
-  width: 80%;
+  width: 100%;
+  max-width: 500px !important;
   border: 1px solid #d9d9d9;
   border-radius: 8px;
   font-family: "Inter", sans-serif;
@@ -229,11 +230,15 @@
 .Resumo h1 {
   font-size: 16px;
   margin-bottom: 8px;
+  margin-top: 0;
 }
 
 .Resumo p {
+  white-space: normal;
+  overflow-wrap: break-word;
+  word-wrap: break-word;
   font-weight: 400;
-}
+} 
 
 .pagination {
   display: flex;
